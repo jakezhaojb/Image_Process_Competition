@@ -13,7 +13,7 @@ Nothing else is required, and it is compatible with Windows, Linux and Mac.
 
 Usage
 ----------------
-
+Just run Mainland.R!
 
 
 Team info
