@@ -63,3 +63,52 @@ Erosion = function( y ) {
   
   return( land )
 }
+
+
+# Drawing plots
+myPlot <- function(im, ratio) {
+  xvals <- rep(1:(dim(im)[1]), dim(im)[2])
+  yvals <- rep(1:(dim(im)[2]), each=dim(im)[1])
+  dim(im) <- c(dim(im)[1]*dim(im)[2], 3)
+  plot(xvals, yvals, pch=18, cex=0.4,
+       col=apply(im, 1, function(a) {
+         return(rgb(a[1], a[2], a[3]))}))
+  text(90, 400, round(ratio, 5))
+}
+
+
+###########################################
+# main function
+load("4images.RData")
+# all the 1~4 work fine
+par(mfrow = c(2, 2)) 
+# Start!
+for (i in 1:4) {
+  y <- x[[i]]
+  land <- Erosion(y)
+  areaLand <- sum( land )
+  
+  #image( (y[,,2]>0.7) * (y[,,2] < 0.9) * land )
+  
+  # find houses inside the land
+  house <- (y[,,2]>0.7) * (y[,,2] < 0.9) * land
+  
+  # move the houses according to 4 directions to cover 
+  # the green lines and the black edge 
+  house2 <- house[ 2:(nrow(house)-1) , 2:(ncol(house)-1) ] + 
+    house[ 1:(nrow(house)-2) , 2:(ncol(house)-1) ] + # up
+    house[ 2:(nrow(house)-1) , 1:(ncol(house)-2) ] + # left
+    house[ 3:(nrow(house)) , 2:(ncol(house)-1) ] +   # down
+    house[ 2:(nrow(house)-1) , 3:(ncol(house)) ]     # right
+#  #image( house2)
+  house2 <- ( house2>=1 )*1  # turn all non-zero number into 1
+  areaHouse <- sum( house2 )  # count the area of house
+  
+  result <- areaHouse/areaLand # count the ratio
+  
+  im <- array(1, dim = c( (nrow(land) - 2), (ncol(land) - 2), 3 ))
+  im[,,1] <- land[ 2: (nrow(land) - 1), 2: (ncol(land) - 1) ]
+  im[,,3] <- house2
+  myPlot(im, result) 
+}
+
